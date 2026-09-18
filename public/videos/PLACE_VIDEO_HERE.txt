@@ -1,0 +1,10 @@
+Put your showcase video at:  public/videos/showcase.mp4
+
+It was left out of the delivered zip only because of its size (~333MB) —
+you already have the original file (E_book_final.mp4) from your upload.
+Just rename/copy it to public/videos/showcase.mp4 and it will show up
+automatically in the Home page hero and the About page.
+
+Alternatively, skip local files entirely and upload it from /admin ->
+Product Content -> "Showcase video" once the app is running — that stores
+it in Supabase and updates the video used across the site for you.

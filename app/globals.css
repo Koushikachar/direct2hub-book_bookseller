@@ -1,0 +1,630 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: light;
+  /* "brick" text/border scale — dark, warm tones for light mode */
+  --brick-950: 43 15 8;    /* #2B0F08 — headings */
+  --brick-900: 61 21 9;    /* #3D1509 */
+  --brick-800: 90 31 12;   /* #5A1F0C — body text */
+  --brick-700: 122 46 21;  /* #7A2E15 — secondary text / borders */
+}
+html.dark {
+  color-scheme: dark;
+  /* Reversed to light, warm tones so text/borders stay readable on the dark background */
+  --brick-950: 250 240 233;  /* near-cream — headings */
+  --brick-900: 244 224 210;
+  --brick-800: 232 209 196;  /* warm off-white — body text */
+  --brick-700: 255 193 163;  /* warm peach — secondary text / borders / dividers */
+}
+
+body {
+  @apply text-brick-950 font-body transition-colors duration-300;
+  /* Pure white — the site's own branding calls for a plain white
+     background in light mode, not an off-white/cream tint. */
+  background: #FFFFFF;
+}
+
+html.dark body {
+  @apply text-cream;
+  background:
+    radial-gradient(1100px 560px at 50% -12%, rgba(255,102,0,0.16), transparent 60%),
+    #120A08;
+}
+
+/* Liquid glass header: frosted, adapts to light/dark */
+.glass-header {
+  background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.62));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(15,10,8,0.06);
+  box-shadow: 0 8px 30px rgba(58,17,7,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+html.dark .glass-header {
+  background: linear-gradient(180deg, rgba(24,14,11,0.86), rgba(24,14,11,0.66));
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.card {
+  @apply rounded-2xl border transition-colors duration-300;
+  border-color: rgba(90,31,12,0.10);
+  background: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(43,15,8,0.04), 0 18px 40px -20px rgba(43,15,8,0.22);
+}
+html.dark .card {
+  @apply border-white/10 bg-[#1B100C] shadow-2xl shadow-black/40;
+}
+
+/* A soft, brand-colored radial wash behind a section — visible and warm
+   in light mode (where the page itself is plain white and needs it),
+   dialed right back in dark mode (whose body already carries its own
+   ember glow, so stacking two would look muddy). */
+.section-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  background: radial-gradient(900px 480px at 50% -8%, rgba(255,102,0,0.16), transparent 60%);
+}
+html.dark .section-glow {
+  background: radial-gradient(900px 480px at 50% -8%, rgba(255,102,0,0.06), transparent 60%);
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255,102,0,0.45); border-radius: 999px; }
+
+/* ---------- Marketing / hero utilities ---------- */
+.hero-glow {
+  background:
+    radial-gradient(800px 400px at 15% 20%, rgba(240,148,124,0.18), transparent 60%),
+    radial-gradient(700px 380px at 85% 0%, rgba(255,102,0,0.14), transparent 55%);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #FF6600, #FFA366 45%, #CC5200);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float { animation: float-y 5s ease-in-out infinite; }
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255,102,0,0.45); }
+  70% { box-shadow: 0 0 0 16px rgba(255,102,0,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,102,0,0); }
+}
+.animate-pulse-ring { animation: pulse-ring 2.2s ease-out infinite; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.6s ease-out both; }
+
+/* ---------- About page "unlock the playbook" mini-game ---------- */
+.progress-dot {
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.game-glow {
+  box-shadow: 0 0 0 1px rgba(255,102,0,0.15), 0 20px 60px -20px rgba(255,102,0,0.45);
+}
+
+/* Chapter preview cards — glossy gradient front with a cursor-tracked
+   tilt + light sheen, flipping to a quote-style teaser on the back. */
+.chapter-card-wrap { perspective: 1700px; }
+
+.chapter-flip { cursor: pointer; }
+.chapter-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0.15, 0.2, 1);
+  --rx: 0deg;
+  --ry: 0deg;
+}
+.chapter-flip.is-flipped .chapter-flip-inner { transform: rotateY(180deg); }
+.chapter-flip:not(.is-flipped) .chapter-flip-inner {
+  transform: rotateY(0deg) rotateX(var(--rx)) rotateY(var(--ry));
+}
+
+.chapter-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.chapter-face--back { transform: rotateY(180deg); }
+
+.chapter-face--front {
+  /* No `position` override here on purpose — the shared .chapter-face
+     rule above already sets `position: absolute; inset: 0`, which is
+     what stretches this face to fill the card's fixed height. Setting
+     `position: relative` here (the previous code) had equal CSS
+     specificity to that rule and, being declared later, silently won —
+     so the front face dropped out of absolute positioning and sized
+     itself to its own content instead of the full card, which is what
+     made it render visibly shorter than the back face. `.chapter-face`
+     being `position: absolute` already gives this element's own
+     absolutely-positioned children (the sheen, ghost number, corner
+     fold) a valid containing block, so removing `position: relative`
+     here doesn't change how they're placed. */
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), 0 24px 50px -18px var(--glow-color, rgba(255,102,0,0.5));
+  transition: box-shadow 0.4s ease;
+}
+/* :active is added alongside :hover so the same lift/glow plays on tap
+   on mobile — :hover never fires there (there's no pointing device to
+   "hover" with), so without this the glow/sheen/arrow motion that
+   desktop gets on mouseover simply never happened on a phone. */
+.chapter-card-wrap:hover .chapter-face--front,
+.chapter-card-wrap:active .chapter-face--front {
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), 0 34px 65px -16px var(--glow-color, rgba(255,102,0,0.6));
+}
+.chapter-face--front::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.07) 0 2px, transparent 2px 26px);
+}
+.chapter-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(220px 260px at var(--mx, 30%) var(--my, 20%), rgba(255,255,255,0.35), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.chapter-card-wrap:hover .chapter-sheen,
+.chapter-card-wrap:active .chapter-sheen { opacity: 1; }
+
+.chapter-ghost-num {
+  position: absolute;
+  z-index: 1;
+  right: -8px;
+  bottom: -30px;
+  font-family: var(--font-sora, sans-serif);
+  font-weight: 800;
+  font-size: 150px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: rgba(255,255,255,0.14);
+  pointer-events: none;
+}
+.chapter-corner-fold {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  z-index: 2;
+  background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.16) 50%);
+  border-radius: 0 22px 0 16px;
+}
+.chapter-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.28);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  box-shadow: 0 8px 18px -6px rgba(0,0,0,0.35);
+}
+.chapter-cta-arrow { transition: transform 0.3s ease; }
+.chapter-card-wrap:hover .chapter-cta-arrow,
+.chapter-card-wrap:active .chapter-cta-arrow { transform: translateX(4px); }
+
+.chapter-face--back { box-shadow: 0 24px 50px -20px rgba(43,15,8,0.28); }
+.chapter-quote {
+  display: block;
+  font-family: var(--font-sora, sans-serif);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 0.6;
+  color: rgba(255,102,0,0.18);
+  margin-bottom: 6px;
+}
+
+/* ---------- 3D book hero mockup (real 6-face CSS cube, drag-rotatable) ----------
+   Built with the standard translateZ cube technique — front, back, spine,
+   pages, top and bottom are six actual faces in 3D space, not one flat
+   cover image pasted on a tilted plane. See components/Book3D.tsx for the
+   drag/inertia/idle-rotate/lighting behaviour that drives the CSS
+   variables and transforms below. */
+.book3d-stage {
+  --bw: 250px; /* book width */
+  --bh: 372px; /* book height */
+  --bd: 30px;  /* book thickness (spine depth) — slim, like a real bound paperback/hardcover, not a thick block */
+  position: relative;
+  perspective: 1600px;
+  padding: 46px 40px 66px;
+  contain: layout paint;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+}
+.book3d-stage--grabbing { cursor: grabbing; }
+.book3d-stage:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255,102,0,0.45);
+  border-radius: 20px;
+}
+@media (max-width: 480px) {
+  .book3d-stage { --bw: 186px; --bh: 277px; --bd: 22px; padding: 30px 24px 52px; }
+}
+
+.book3d-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: calc(var(--bw) * 1.05);
+  height: 26px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(43,15,8,0.45), transparent 75%);
+  filter: blur(6px);
+  pointer-events: none;
+  will-change: transform;
+}
+@media (max-width: 480px) {
+  .book3d-shadow { bottom: 12px; height: 18px; }
+}
+
+.book3d {
+  position: relative;
+  width: var(--bw);
+  height: var(--bh);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.book3d-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ---- front & back covers ---- */
+.book3d-face--front, .book3d-face--back {
+  width: var(--bw);
+  height: var(--bh);
+  border-radius: 3px 11px 11px 3px;
+  overflow: hidden;
+  background: #FAF6F1;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+}
+.book3d-face--front { transform: translateZ(calc(var(--bd) / 2)); }
+.book3d-face--back { transform: rotateY(180deg) translateZ(calc(var(--bd) / 2)); }
+
+/* Directional ambient shading — a book curves very slightly away from the
+   light near its spine; this is what a flat photo mockup can never show. */
+.book3d-face--front::before, .book3d-face--back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(43,15,8,0.16) 0%, rgba(43,15,8,0.03) 10%, transparent 26%, transparent 90%, rgba(43,15,8,0.12) 100%);
+}
+/* Dynamic glossy sweep — position tracks the live rotation via --lx/--ly,
+   set every frame in Book3D.tsx, so the highlight actually moves across
+   the cover as you turn it, like light reflecting off a real printed finish. */
+.book3d-face--front::after, .book3d-face--back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(480px 620px at var(--lx, 30%) var(--ly, 18%), rgba(255,255,255,0.50), rgba(255,255,255,0.08) 35%, transparent 60%);
+  mix-blend-mode: soft-light;
+}
+
+.book3d-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5px;
+  z-index: 1;
+  background: linear-gradient(90deg, #FF6600, #FFA366 55%, #CC5200);
+}
+.book3d-band--top { top: 0; }
+.book3d-band--bottom { bottom: 0; }
+
+.book3d-cover-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px 22px;
+  text-align: center;
+  color: #2B0F08;
+}
+.book3d-logo { position: absolute; top: 16px; left: 16px; display: flex; align-items: center; gap: 5px; }
+.book3d-logo-mark {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #FF8533, #FF6600);
+  color: #fff;
+  font: 800 9px var(--font-sora, sans-serif);
+}
+.book3d-logo-word { font: 700 9px var(--font-sora, sans-serif); letter-spacing: 0.01em; color: #5A1F0C; }
+.book3d-eyebrow { font: 600 8px var(--font-inter, sans-serif); letter-spacing: 0.14em; text-transform: uppercase; color: #FF6600; margin-top: 14px; }
+.book3d-title { font: 800 20px/1.18 var(--font-sora, sans-serif); letter-spacing: -0.01em; color: #2B0F08; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+.book3d-title span { color: #FF6600; }
+.book3d-subtitle { font: 500 9.5px var(--font-inter, sans-serif); color: #7A2E15; max-width: 170px; }
+.book3d-pill {
+  margin-top: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: 700 8px var(--font-inter, sans-serif);
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: linear-gradient(90deg, #FF6600, #FFA366 55%, #CC5200);
+  box-shadow: 0 4px 10px -2px rgba(255,102,0,0.5);
+}
+.book3d-footer {
+  position: absolute;
+  bottom: 14px;
+  left: 20px;
+  right: 20px;
+  font: 600 6px var(--font-inter, sans-serif);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7A2E15;
+  opacity: 0.55;
+}
+
+/* ---- back cover ---- */
+.book3d-back-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 26px 22px;
+  color: #5A1F0C;
+  display: flex;
+  flex-direction: column;
+}
+.book3d-back-eyebrow { font: 700 7px var(--font-inter, sans-serif); letter-spacing: 0.16em; text-transform: uppercase; color: #FF6600; }
+.book3d-back-blurb { margin-top: 10px; font: 500 8.6px/1.55 var(--font-inter, sans-serif); color: #5A1F0C; opacity: 0.9; }
+.book3d-back-rule { margin: 14px 0; height: 1px; background: rgba(43,15,8,0.12); }
+.book3d-back-price { font: 800 13px var(--font-sora, sans-serif); color: #2B0F08; }
+.book3d-back-price span { font: 600 8px var(--font-inter, sans-serif); color: #7A2E15; display: block; margin-top: 2px; }
+.book3d-back-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
+.book3d-back-url { font: 700 7px var(--font-inter, sans-serif); letter-spacing: 0.08em; opacity: 0.6; }
+.book3d-barcode {
+  width: 56px;
+  height: 20px;
+  background: repeating-linear-gradient(90deg, #2B0F08 0 1px, transparent 1px 2px, #2B0F08 2px 3px, transparent 3px 5px);
+  opacity: 0.55;
+}
+
+/* ---- spine (left edge) — solid brand orange, matching the printed
+   cover's actual spine colour, with a soft rounded highlight/shade down
+   each side for real depth instead of a flat paint fill. ---- */
+.book3d-face--spine {
+  width: var(--bd);
+  height: var(--bh);
+  left: calc((var(--bw) - var(--bd)) / 2);
+  transform: rotateY(-90deg) translateZ(calc(var(--bw) / 2));
+  background: linear-gradient(90deg, #CC5200 0%, #FF7A1A 14%, #FF8A33 50%, #FF7A1A 86%, #CC5200 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 5px 0 12px rgba(0,0,0,0.22), inset -4px 0 10px rgba(0,0,0,0.16);
+}
+.book3d-spine-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font: 700 9.5px var(--font-sora, sans-serif);
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+@media (max-width: 480px) { .book3d-spine-text { font-size: 7.5px; } }
+
+/* ---- pages (right edge) — smooth rounded page-block, bright at the very
+   edges like a bound stack caught in studio light, instead of a hard
+   striped pattern. ---- */
+.book3d-face--pages {
+  width: var(--bd);
+  height: calc(var(--bh) - 10px);
+  top: 5px;
+  left: calc((var(--bw) - var(--bd)) / 2);
+  transform: rotateY(90deg) translateZ(calc(var(--bw) / 2));
+  background: linear-gradient(90deg, #cfc9be 0%, #f7f4ee 12%, #ffffff 30%, #ffffff 70%, #f2efe8 88%, #d9d3c7 100%);
+  box-shadow: inset 0 0 10px rgba(43,15,8,0.08);
+}
+
+/* ---- top / bottom — plain paper-coloured board edge, matching a blank
+   mockup's neutral tone instead of a dyed/sprayed edge. ---- */
+.book3d-face--top, .book3d-face--bottom {
+  width: var(--bw);
+  height: var(--bd);
+  top: calc((var(--bh) - var(--bd)) / 2);
+  left: 0;
+  background: linear-gradient(180deg, #e4e0d7 0%, #f8f6f1 40%, #fbfaf7 100%);
+}
+.book3d-face--top { transform: rotateX(90deg) translateZ(calc(var(--bh) / 2)); box-shadow: inset 0 -10px 16px rgba(43,15,8,0.16); }
+.book3d-face--bottom { transform: rotateX(-90deg) translateZ(calc(var(--bh) / 2)); box-shadow: inset 0 10px 16px rgba(43,15,8,0.22); }
+
+/* ---- drag hint pill ---- */
+.book3d-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 10.5px var(--font-inter, sans-serif);
+  color: rgba(43,15,8,0.65);
+  background: rgba(43,15,8,0.06);
+  border: 1px solid rgba(43,15,8,0.12);
+  padding: 5px 11px;
+  border-radius: 999px;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  white-space: nowrap;
+}
+html.dark .book3d-hint {
+  color: rgba(251,246,241,0.7);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+}
+.book3d-hint svg { width: 12px; height: 12px; opacity: 0.85; }
+.book3d-hint--hidden { opacity: 0; transform: translateX(-50%) translateY(6px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .book3d { transition: none; }
+}
+
+/* Mobile type scale — placed last so it wins the cascade at this
+   breakpoint over the base declarations above. */
+@media (max-width: 480px) {
+  .book3d-cover-content { padding: 20px 14px; gap: 6px; }
+  .book3d-logo { top: 10px; left: 10px; }
+  .book3d-logo-mark { width: 13px; height: 13px; font-size: 7px; }
+  .book3d-logo-word { font-size: 7px; }
+  .book3d-eyebrow { font-size: 6px; margin-top: 8px; }
+  .book3d-title { font-size: 14.5px; }
+  .book3d-subtitle { font-size: 7.5px; max-width: 128px; }
+  .book3d-pill { font-size: 6.5px; padding: 4px 9px; margin-top: 2px; }
+  .book3d-footer { font-size: 5px; bottom: 9px; left: 13px; right: 13px; }
+  .book3d-back-content { padding: 18px 14px; }
+  .book3d-back-eyebrow { font-size: 6px; }
+  .book3d-back-blurb { font-size: 7px; margin-top: 7px; }
+  .book3d-back-rule { margin: 10px 0; }
+  .book3d-back-price { font-size: 10.5px; }
+  .book3d-back-price span { font-size: 6px; }
+  .book3d-barcode { width: 42px; height: 15px; }
+  .book3d-hint { font-size: 9.5px; padding: 4px 9px; bottom: 2px; }
+}
+
+/* Same isolation treatment for the hero video/image float — the other
+   spot on the page using an infinite transform animation, and the other
+   candidate for the same mobile "drift" bug. */
+.float-stage {
+  contain: layout paint;
+  will-change: transform;
+}
+
+/* ---------- Circular / infinite-loop mobile card carousel ---------- */
+/* Mobile-only ring carousel: cards continuously advance and wrap from the
+   last card back to the first, rather than snapping back to the start. */
+.circular-carousel-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+.circular-carousel-dot {
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* ---------- Mobile image reveal (hero video showcase) ---------- */
+@keyframes reveal-rise {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 639px) {
+  .media-reveal {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
+  }
+  .media-reveal.is-visible {
+    animation: reveal-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .media-reveal::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.5) 40%, transparent 60%);
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+  .media-reveal.is-visible::after {
+    animation: media-shimmer 1.1s ease-out 0.15s 1;
+  }
+}
+@keyframes media-shimmer {
+  to { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .media-reveal, .media-reveal.is-visible { animation: none; opacity: 1; transform: none; }
+  .media-reveal.is-visible::after { animation: none; }
+}
+
+/* Hides the scrollbar on the mobile feature carousel's native scroll
+   track — the dots below it are the visible scroll indicator instead. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mobile-only scroll reveal (see components/ScrollReveal.tsx). Desktop/
+   tablet gets no transition at all — content is simply visible. */
+@media (max-width: 639px) {
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+  }
+  .reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Same reveal, but active at every breakpoint — used for the desktop
+   sections (features grid, preview strip, CTA banner, reviews) so the
+   page feels alive while scrolling on laptop too, not just mobile. */
+.reveal-on-scroll-all {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal-on-scroll-all.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll-all { opacity: 1; transform: none; transition: none; }
+}
+
+/* Slow-breathing glow ring behind the primary CTAs — draws the eye
+   without being distracting or interrupting layout (box-shadow only). */
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,102,0,0.45), 0 8px 20px -4px rgba(255,102,0,0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(255,102,0,0), 0 8px 26px -2px rgba(255,102,0,0.5); }
+}
+.cta-glow { animation: cta-pulse 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow { animation: none; }
+}

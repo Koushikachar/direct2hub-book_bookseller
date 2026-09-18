@@ -1,0 +1,89 @@
+// Prisma schema — works with any free Postgres host (Neon, Supabase, Railway)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled connection (e.g. Neon's "-pooler" endpoint / PgBouncer) — safe
+  // for the high concurrent connection counts a serverless app sees at
+  // scale, since Postgres itself has a hard connection limit.
+  url       = env("DATABASE_URL")
+  // Direct (non-pooled) connection, used only for migrations/`db push`.
+  directUrl = env("DIRECT_URL")
+}
+
+// The single digital product being sold. Admin edits this from /admin.
+model Product {
+  id          String   @id @default(cuid())
+  title       String   @default("The Ecommerce Playbook – Start, Sell & Scale Your Ecommerce Business")
+  tagline     String   @default("A Practical Beginner's Guide to Start, Sell & Scale an Ecommerce Business")
+  aboutTitle  String   @default("About the page")
+  about       String   @default("")
+  bullets     String[] @default([])
+  learnFrom   String   @default("Direct2Hub")
+  learnFromBio String  @default("")
+  contactPhone String  @default("")
+  whatsappUrl String   @default("")
+  youtubeUrl  String   @default("")
+  instagramUrl String  @default("")
+  logoUrl     String   @default("/uploads/logo-placeholder.png")
+  heroImageUrl String  @default("/uploads/hero-placeholder.png")
+  videoUrl    String   @default("/videos/showcase.mp4")
+  // "Peek inside the playbook" chapter-preview cards on the About page.
+  // Editable from /admin -> Media so they're no longer hardcoded files
+  // that can silently go missing from a deploy (see CHANGES.md).
+  previewImage1Url String @default("/uploads/pdf-preview/page-01.jpg")
+  previewImage2Url String @default("/uploads/pdf-preview/page-02.jpg")
+  previewImage3Url String @default("/uploads/pdf-preview/page-03.jpg")
+  pdfUrl      String   @default("")
+  pdfSizeKb   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// One row per person who fills the form. Access is gated behind payment —
+// accessToken only unlocks the download page once paymentStatus is "paid".
+model Submission {
+  id                String    @id @default(cuid())
+  name              String
+  email             String    @unique
+  countryCode       String
+  whatsapp          String
+  accessToken       String    @unique
+  viewCount         Int       @default(0)
+  downloadCount     Int       @default(0)
+  paymentStatus     String    @default("pending") // pending | paid
+  amountPaise       Int       @default(0)
+  razorpayOrderId   String?   @unique
+  razorpayPaymentId String?   @unique
+  paidAt            DateTime?
+  createdAt         DateTime  @default(now())
+  // Each browser that claims this link (up to MAX_DEVICES, see
+  // lib/tokens.ts) adds its own secret here and gets it set as a cookie.
+  // This is what stops the link from being freely shareable — a genuine
+  // buyer can still open it from e.g. their phone AND their laptop, but
+  // once the array is full, anyone else who opens the same link is shown
+  // a blocked page instead of the download, since their browser won't
+  // carry a matching cookie.
+  deviceTokens      String[]  @default([])
+
+  @@unique([countryCode, whatsapp])
+  @@index([createdAt])
+}
+
+// Public product reviews shown at the bottom of the homepage. Anyone can
+// submit one via the review form; they're published immediately. Each
+// reviewer gets a private edit token (hashed here) so they can edit or
+// remove their own review later; admins can moderate any review.
+model Review {
+  id            String   @id @default(cuid())
+  name          String
+  rating        Int
+  comment       String
+  editTokenHash String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([createdAt])
+}
