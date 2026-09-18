@@ -4,14 +4,7 @@ import { useRouter } from "next/navigation";
 import TermsModal from "./TermsModal";
 import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
 
-const COUNTRY_CODES = [
-  { code: "+91", label: "IN +91" },
-  { code: "+1", label: "US +1" },
-  { code: "+44", label: "UK +44" },
-  { code: "+971", label: "AE +971" },
-  { code: "+61", label: "AU +61" },
-  { code: "+65", label: "SG +65" },
-];
+const COUNTRY_CODES = [{ code: "+91", label: "IN +91" }];
 
 const PRICE_LABEL = "₹199";
 
@@ -47,14 +40,22 @@ declare global {
 
 export default function OrderForm() {
   const router = useRouter();
-  const [form, setForm] = useState<OrderFormState>({ name: "", email: "", countryCode: "+91", whatsapp: "" });
+  const [form, setForm] = useState<OrderFormState>({
+    name: "",
+    email: "",
+    countryCode: "+91",
+    whatsapp: "",
+  });
   const [step, setStep] = useState<Step>("details");
   const [order, setOrder] = useState<OrderData | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const [termsOpen, setTermsOpen] = useState(false);
 
-  function update<K extends keyof OrderFormState>(field: K, value: OrderFormState[K]) {
+  function update<K extends keyof OrderFormState>(
+    field: K,
+    value: OrderFormState[K],
+  ) {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
@@ -71,7 +72,8 @@ export default function OrderForm() {
         body: JSON.stringify(form),
       });
       const submitData = await submitRes.json();
-      if (!submitRes.ok) throw new Error(submitData.error || "Something went wrong");
+      if (!submitRes.ok)
+        throw new Error(submitData.error || "Something went wrong");
 
       const orderRes = await fetch("/api/payment/create-order", {
         method: "POST",
@@ -79,7 +81,8 @@ export default function OrderForm() {
         body: JSON.stringify({ submissionId: submitData.submissionId }),
       });
       const orderData = await orderRes.json();
-      if (!orderRes.ok) throw new Error(orderData.error || "Could not start payment");
+      if (!orderRes.ok)
+        throw new Error(orderData.error || "Could not start payment");
 
       setOrder({
         submissionId: submitData.submissionId,
@@ -95,7 +98,11 @@ export default function OrderForm() {
       setStep("payment");
     } catch (err) {
       setStatus("error");
-      setMessage(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setMessage(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     }
   }
 
@@ -106,7 +113,10 @@ export default function OrderForm() {
     setMessage("");
     try {
       const loaded = await loadRazorpayScript();
-      if (!loaded) throw new Error("Could not load the payment gateway. Check your connection and try again.");
+      if (!loaded)
+        throw new Error(
+          "Could not load the payment gateway. Check your connection and try again.",
+        );
 
       const rzp = new window.Razorpay({
         key: order.keyId,
@@ -115,7 +125,11 @@ export default function OrderForm() {
         order_id: order.orderId,
         name: "Direct2hub",
         description: "The Ecommerce Playbook",
-        prefill: { name: order.name, email: order.email, contact: order.contact },
+        prefill: {
+          name: order.name,
+          email: order.email,
+          contact: order.contact,
+        },
         theme: { color: "#ea580c" },
         method: { upi: true, card: true, netbanking: true, wallet: true },
         handler: async (response: unknown) => {
@@ -128,14 +142,17 @@ export default function OrderForm() {
               body: JSON.stringify(response),
             });
             const verifyData = await verifyRes.json();
-            if (!verifyRes.ok) throw new Error(verifyData.error || "Payment verification failed.");
+            if (!verifyRes.ok)
+              throw new Error(
+                verifyData.error || "Payment verification failed.",
+              );
             router.push(`/access/${verifyData.token}`);
           } catch (err) {
             setStatus("error");
             setMessage(
               err instanceof Error
                 ? err.message
-                : "Payment verification failed. If money was deducted, please contact support."
+                : "Payment verification failed. If money was deducted, please contact support.",
             );
           }
         },
@@ -147,13 +164,19 @@ export default function OrderForm() {
       rzp.on("payment.failed", (response: unknown) => {
         const err = response as { error?: { description?: string } };
         setStatus("error");
-        setMessage(err.error?.description || "Payment failed. Please try again.");
+        setMessage(
+          err.error?.description || "Payment failed. Please try again.",
+        );
       });
 
       rzp.open();
     } catch (err) {
       setStatus("error");
-      setMessage(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setMessage(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     }
   }
 
@@ -168,13 +191,16 @@ export default function OrderForm() {
 
         {isTestMode && (
           <div className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-center text-xs font-medium text-amber-700">
-            Test mode — no real money will be charged. Use Razorpay's test cards/UPI.
+            Test mode — no real money will be charged. Use Razorpay's test
+            cards/UPI.
           </div>
         )}
 
         <div className="rounded-lg border border-brick-700/10 p-4 text-center">
           <p className="text-sm text-brick-700/80">Amount to pay</p>
-          <p className="font-display text-3xl font-bold text-ember-600">{PRICE_LABEL}</p>
+          <p className="font-display text-3xl font-bold text-ember-600">
+            {PRICE_LABEL}
+          </p>
         </div>
 
         <button
@@ -194,9 +220,14 @@ export default function OrderForm() {
           Edit your details
         </button>
 
-        {status === "error" && <p className="text-center text-sm text-red-500">{message}</p>}
+        {status === "error" && (
+          <p className="text-center text-sm text-red-500">{message}</p>
+        )}
 
-        <p className="text-center text-xs text-brick-700/80">Payments are processed securely by Razorpay (UPI, cards, netbanking, wallets).</p>
+        <p className="text-center text-xs text-brick-700/80">
+          Payments are processed securely by Razorpay (UPI, cards, netbanking,
+          wallets).
+        </p>
       </div>
     );
   }
@@ -209,7 +240,9 @@ export default function OrderForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-brick-700">Name</label>
+          <label className="mb-1 block text-xs font-medium text-brick-700">
+            Name
+          </label>
           <input
             required
             value={form.name}
@@ -220,7 +253,9 @@ export default function OrderForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-brick-700">Email Address</label>
+          <label className="mb-1 block text-xs font-medium text-brick-700">
+            Email Address
+          </label>
           <input
             required
             type="email"
@@ -232,7 +267,10 @@ export default function OrderForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-brick-700">WhatsApp Number</label>
+          <label className="mb-1 block text-xs font-medium text-brick-700">
+            WhatsApp Number
+          </label>
+
           <div className="flex gap-2">
             <select
               value={form.countryCode}
@@ -245,15 +283,30 @@ export default function OrderForm() {
                 </option>
               ))}
             </select>
+
             <input
               required
               type="tel"
+              inputMode="numeric"
+              maxLength={10}
+              minLength={10}
+              pattern="[6-9][0-9]{9}"
               value={form.whatsapp}
-              onChange={(e) => update("whatsapp", e.target.value.replace(/[^\d]/g, ""))}
-              placeholder="98765 43210"
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+
+                update("whatsapp", value);
+              }}
+              placeholder="9876543210"
               className="w-full rounded-lg border border-brick-700/20 bg-transparent px-3 py-2.5 outline-none ring-ember-500/40 focus:ring-2"
             />
           </div>
+
+          {form.whatsapp.length > 0 && form.whatsapp.length !== 10 && (
+            <p className="mt-1 text-xs text-red-500">
+              WhatsApp number must contain exactly 10 digits.
+            </p>
+          )}
         </div>
 
         <button
@@ -261,14 +314,22 @@ export default function OrderForm() {
           disabled={status === "loading"}
           className="w-full rounded-lg bg-ember-600 py-3 font-semibold text-white transition hover:bg-ember-500 disabled:opacity-60"
         >
-          {status === "loading" ? "Continuing…" : `Continue to payment — ${PRICE_LABEL}`}
+          {status === "loading"
+            ? "Continuing…"
+            : `Continue to payment — ${PRICE_LABEL}`}
         </button>
 
-        {status === "error" && <p className="text-center text-sm text-red-500">{message}</p>}
+        {status === "error" && (
+          <p className="text-center text-sm text-red-500">{message}</p>
+        )}
 
         <p className="text-center text-xs text-brick-700/80">
           By continuing, you agree to Direct2hub's{" "}
-          <button type="button" onClick={() => setTermsOpen(true)} className="underline">
+          <button
+            type="button"
+            onClick={() => setTermsOpen(true)}
+            className="underline"
+          >
             Terms
           </button>
           .

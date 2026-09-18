@@ -15,31 +15,31 @@ datasource db {
 
 // The single digital product being sold. Admin edits this from /admin.
 model Product {
-  id          String   @id @default(cuid())
-  title       String   @default("The Ecommerce Playbook – Start, Sell & Scale Your Ecommerce Business")
-  tagline     String   @default("A Practical Beginner's Guide to Start, Sell & Scale an Ecommerce Business")
-  aboutTitle  String   @default("About the page")
-  about       String   @default("")
-  bullets     String[] @default([])
-  learnFrom   String   @default("Direct2Hub")
-  learnFromBio String  @default("")
-  contactPhone String  @default("")
-  whatsappUrl String   @default("")
-  youtubeUrl  String   @default("")
-  instagramUrl String  @default("")
-  logoUrl     String   @default("/uploads/logo-placeholder.png")
-  heroImageUrl String  @default("/uploads/hero-placeholder.png")
-  videoUrl    String   @default("/videos/showcase.mp4")
+  id               String   @id @default(cuid())
+  title            String   @default("The Ecommerce Playbook – Start, Sell & Scale Your Ecommerce Business")
+  tagline          String   @default("A Practical Beginner's Guide to Start, Sell & Scale an Ecommerce Business")
+  aboutTitle       String   @default("About the page")
+  about            String   @default("")
+  bullets          String[] @default([])
+  learnFrom        String   @default("Direct2Hub")
+  learnFromBio     String   @default("")
+  contactPhone     String   @default("")
+  whatsappUrl      String   @default("")
+  youtubeUrl       String   @default("")
+  instagramUrl     String   @default("")
+  logoUrl          String   @default("/uploads/logo-placeholder.png")
+  heroImageUrl     String   @default("/uploads/hero-placeholder.png")
+  videoUrl         String   @default("/videos/showcase.mp4")
   // "Peek inside the playbook" chapter-preview cards on the About page.
   // Editable from /admin -> Media so they're no longer hardcoded files
   // that can silently go missing from a deploy (see CHANGES.md).
-  previewImage1Url String @default("/uploads/pdf-preview/page-01.jpg")
-  previewImage2Url String @default("/uploads/pdf-preview/page-02.jpg")
-  previewImage3Url String @default("/uploads/pdf-preview/page-03.jpg")
-  pdfUrl      String   @default("")
-  pdfSizeKb   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  previewImage1Url String   @default("/uploads/pdf-preview/page-01.jpg")
+  previewImage2Url String   @default("/uploads/pdf-preview/page-02.jpg")
+  previewImage3Url String   @default("/uploads/pdf-preview/page-03.jpg")
+  pdfUrl           String   @default("")
+  pdfSizeKb        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 // One row per person who fills the form. Access is gated behind payment —
